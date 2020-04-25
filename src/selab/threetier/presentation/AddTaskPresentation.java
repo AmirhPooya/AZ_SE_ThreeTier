@@ -23,17 +23,24 @@ public class AddTaskPresentation extends JSONPresentation {
         JSONObject request = new JSONObject(new BufferedReader(new InputStreamReader(body)).lines().collect(Collectors.joining("\n")));
 
         Task newTask = new Task();
+        boolean valid_end;
         newTask.setTitle(request.getString("title"));
         try {
             newTask.setStart(new SimpleDateFormat("y-M-d H:m:s").parse(request.getString("start")));
-            newTask.setEnd(new SimpleDateFormat("y-M-d H:m:s").parse(request.getString("end")));
+            valid_end = newTask.setEnd(new SimpleDateFormat("y-M-d H:m:s").parse(request.getString("end")));
         } catch (ParseException ex) {
             throw new IOException("Invalid date/time format");
         }
-        newTask.save();
+
+        if(valid_end)
+            valid_end = newTask.save();
+
 
         Map<String, String> result = new HashMap<>();
-        result.put("success", "true");
+        if(valid_end)
+            result.put("success", "true");
+        else
+            result.put("success", "false");
         return new JSONObject(result);
     }
 }

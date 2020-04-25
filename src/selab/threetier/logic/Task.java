@@ -1,5 +1,6 @@
 package selab.threetier.logic;
 
+import org.json.zip.None;
 import selab.threetier.storage.Storage;
 
 import java.text.SimpleDateFormat;
@@ -22,13 +23,35 @@ public class Task extends Entity {
         return new SimpleDateFormat("HH:mm:ss").format(start);
     }
 
-    public void setEnd(Date value) { end = value; }
+    public boolean setEnd(Date value) {
+        if(start != null) {
+            if(end.compareTo(start) < 0)
+                return false;
+        }
+        end = value;
+        return true;
+    }
     public String getEndTime() {
         return new SimpleDateFormat("HH:mm:ss").format(end);
     }
 
-    public void save() {
+    public boolean save() {
+        if(!check_overlap())
+            return false;
         Storage.getInstance().getTasks().addOrUpdate(this);
+        return true;
+    }
+
+    private boolean check_overlap() {
+        ArrayList<Task> tasks = Storage.getInstance().getTasks().getAll();
+        for(Task t: tasks) {
+            if(t.getStartDate().compareTo(this.getStartDate()) != 0)
+                continue;
+            if(t.getStartTime().compareTo(this.getEndTime()) > 0 || t.getEndTime().compareTo(this.getStartTime()) < 0)
+                continue;
+            return false;
+        }
+        return true;
     }
 
     private void find_id() {
@@ -53,8 +76,7 @@ public class Task extends Entity {
     @Override
     public boolean equals(Task t) {
         if(t.getStartTime().equals(getStartTime()) && t.getStartDate().equals(getStartDate()))
-            if(t.getTitle().equals(getTitle()) && t.getEndTime().equals(getEndTime()))
-                return true;
+            return t.getTitle().equals(getTitle()) && t.getEndTime().equals(getEndTime());
         return false;
     }
 }
