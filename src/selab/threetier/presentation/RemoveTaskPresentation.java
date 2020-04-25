@@ -24,7 +24,18 @@ public class RemoveTaskPresentation extends JSONPresentation {
 
         int id = request.getInt("id");
 
-        // TODO: Add codes here to delete a task with the id
-        return null;
+        Task dummyTask = new Task();
+        dummyTask.setTitle(request.getString("title"));
+        try {
+            dummyTask.setStart(new SimpleDateFormat("y-M-d H:m:s").parse(request.getString("start")));
+            dummyTask.setEnd(new SimpleDateFormat("y-M-d H:m:s").parse(request.getString("end")));
+        } catch (ParseException ex) {
+            throw new IOException("Invalid date/time format");
+        }
+        dummyTask.remove();
+
+        Map<String, String> result = new HashMap<>();
+        result.put("success", "true");
+        return new JSONObject(result);
     }
 }

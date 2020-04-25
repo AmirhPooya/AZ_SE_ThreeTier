@@ -31,7 +31,30 @@ public class Task extends Entity {
         Storage.getInstance().getTasks().addOrUpdate(this);
     }
 
+    private void find_id() {
+        ArrayList<Task> tasks = Storage.getInstance().getTasks().getAll();
+        for(Task t: tasks) {
+            if(t.equals(this)) {
+                setId(t.getId());
+                return;
+            }
+        }
+        setId(-1);
+    }
+    public void remove() {
+        find_id();
+        Storage.getInstance().getTasks().remove(this);
+    }
+
     public static ArrayList<Task> getAll() {
         return Storage.getInstance().getTasks().getAll();
+    }
+
+    @Override
+    public boolean equals(Task t) {
+        if(t.getStartTime().equals(getStartTime()) && t.getStartDate().equals(getStartDate()))
+            if(t.getTitle().equals(getTitle()) && t.getEndTime().equals(getEndTime()))
+                return true;
+        return false;
     }
 }
